@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+    <h:head>
+        <title>IA - Elevadores Inteligentes</title>
+        <link rel="stylesheet" type="text/css" href="#{request.contextPath}/css/index.css"/>
+
+        <style>
+            .ui-widget {
+                font-size: 14px !important;
+                margin: 0;
+            } 
+            .semBorda tr, .semBorda td{  
+                border: none !important;   
+            }
+        </style>
+    </h:head>
+
+    <h:body style="background-image:url('imagens/bg_site.jpg'); background-repeat: repeat-x;">
+        <f:view encoding="ISO-8859-1">
+            <p:growl id="growl" showDetail="true" sticky="false" life="5000" />
+            <div id="div_geral">
+
+                <!--cancela o float e da um espacamento de 20px entre o menu e a div central-->
+                <span class="clearFull div20"></span>
+
+                <div id="div_central">
+                    <!--conteudo do template-->
+                    <span class="clearFull div20"></span>
+                    <div id="div_conteudo">
+                        <ui:insert name="conteudo"/> 
+                    </div>
+                    <span class="clearFull div20"></span>
+                </div>
+
+                <span class="clearFull div20"></span>
+
+                <footer>
+                    <div class="strokeme" align="center">
+                        Equipe 1: Adriano Queiroz, Hortência Campos e Jéssica Tavares                
+                    </div>
+                </footer>
+                
+                <span class="clearFull div20"></span>
+            </div>
+        </f:view>
+    </h:body>
+</html>

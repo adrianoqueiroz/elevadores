@@ -1,0 +1,191 @@
+<ui:composition template="/WEB-INF/facelets/template.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <ui:define name="cabecalho">
+    </ui:define>
+
+    <ui:define name="conteudo">
+        <p:panel id="panelPrincipal">
+
+            <div id="area_venda">
+
+                <div id="div_botoes_venda">
+                    <div class="fontetitulo" align="center">
+                        <h:panelGrid columns="3" style="margin: auto">
+                            <img src="imagens/embarque.png" height="150px" width="150px" alt=""/>
+                            <h:panelGrid>
+                                <span style="color: #585858; font-size: 35px; text-align: center">
+                                    Elevadores Inteligentes
+                                </span>
+                            </h:panelGrid>
+                            <p:spacer height="30" width="30"/>
+                        </h:panelGrid>
+                    </div>
+
+                    <h:panelGrid columns="2">
+                        <h:panelGrid columns="1">
+                            <h:panelGrid columns="2">
+                                <p:panel header="Origem" style="width: 95px;">
+                                    <h:form>
+                                        <h:outputText value="#{controlesBean.novoUsuario.andarOrigem}º Andar" />
+                                        <ui:repeat var="andar" value="#{controlesBean.listaAndares}">
+                                            <p:commandButton style="width: 30px; height: 30px;" value="#{andar}" actionListener="#{controlesBean.novoUsuario.setAndarOrigem(andar)}" update=":panelPrincipal" />
+                                        </ui:repeat>           
+                                    </h:form>
+                                </p:panel>
+                                <p:panel header="Destino" style="width: 95px;">
+                                    <h:outputText value="#{controlesBean.novoUsuario.andarDestino}º Andar" />
+                                    <h:form>
+                                        <ui:repeat var="andar" value="#{controlesBean.listaAndares}">
+                                            <p:commandButton style="width: 30px; height: 30px;" value="#{andar}" actionListener="#{controlesBean.novoUsuario.setAndarDestino(andar)}" update=":panelPrincipal" />
+                                        </ui:repeat>           
+                                    </h:form>
+                                </p:panel>
+                            </h:panelGrid>
+
+                            <h:form>
+
+                                <h:panelGrid columns="1">
+                                    <h:panelGrid columns="1">
+                                        <h:inputHidden id="pesoUsuario" value="#{controlesBean.novoUsuario.peso}" />
+                                        <h:outputText id="output3" value="Peso: #{controlesBean.novoUsuario.peso}Kg" />
+                                    </h:panelGrid>
+                                    <p:slider style="width: 210px;" displayTemplate="Peso: {value}Kg" for="pesoUsuario" display="output3" minValue="1" maxValue="150"/>
+                                </h:panelGrid>
+
+                                <h:panelGrid columns="1">
+                                    <p:commandButton style="height: 70px; width: 210px;" value="Chamar Elevador" actionListener="#{controlesBean.pegarElevador()}" update=":panelPrincipal" />
+                                </h:panelGrid>
+                            </h:form>
+                        </h:panelGrid>
+
+                        <h:panelGrid columns="1">
+                            <p:tabView dynamic="true" cache="true">
+                                <p:tab id="estadoElevadores" title="Estado dos elevadores" rendered="#{controlesBean.qtdAndares > 0}">
+                                    <h:form>
+                                        <p:growl id="msgs" showDetail="true"/>
+                                        <p:dataTable id="tabelaelevador" var="elevador" value="#{controlesBean.elevadorCollection}"> 
+                                            <p:column headerText="Nº" style="text-align: center;">  
+                                                <h:outputText value="#{elevador.numero}" />  
+                                            </p:column>
+                                            <p:column headerText="Estado" style="text-align: center;">  
+                                                <p:panelGrid rendered="#{elevador.estado == 'Subindo'}">
+                                                    <img src="imagens/sobe.png" style="height: 55px; width: 55px;" alt=""/>
+                                                </p:panelGrid>
+                                                <p:panelGrid rendered="#{elevador.estado == 'Descendo'}">
+                                                    <img src="imagens/desce.png" style="height: 55px; width: 55px;" alt=""/>
+                                                </p:panelGrid>                                        
+                                                <p:panelGrid rendered="#{elevador.estado == 'Parado'}">
+                                                    <img src="imagens/parado.png" style="height: 55px; width: 55px;" alt=""/>
+                                                </p:panelGrid>
+                                                <p:panelGrid rendered="#{elevador.estado == 'Desembarque'}">
+                                                    <img src="imagens/desembarque.png" style="height: 55px; width: 55px;" alt=""/>
+                                                </p:panelGrid>
+                                                <p:panelGrid rendered="#{elevador.estado == 'Embarque'}">
+                                                    <img src="imagens/embarque.png" style="height: 55px; width: 55px;" alt=""/>
+                                                </p:panelGrid>
+                                            </p:column>
+                                            <p:column headerText="Andar atual" style="text-align: center;">  
+                                                <div align="center" style="color: #585858; font-size: 35px; text-align: center">
+                                                    #{elevador.andar}
+                                                </div>
+                                            </p:column>
+                                            <p:column headerText="Usuários" style="text-align: center;"> 
+                                                <ui:repeat var="usuario" value="#{elevador.usuarioCollection}">
+                                                    <img src="imagens/user.png" alt=""/>
+                                                </ui:repeat>
+                                            </p:column> 
+                                            <p:column headerText="Carga restante" style="text-align: center;">  
+                                                <h:outputText value="#{elevador.calculaCargaRestante()}" />  
+                                            </p:column>
+                                        </p:dataTable>
+
+                                        <p:poll interval="1" listener="#{controlesBean.atualizaEstadoAutomatico()}" update="tabelaelevador" />
+                                    </h:form>
+                                </p:tab>
+
+                                <p:tab title="Usuários aguardando embarque" rendered="#{controlesBean.qtdAndares > 0}">
+                                    <h:form>
+                                        <p:growl id="msgs" showDetail="true"/>
+                                        <p:dataTable id="tabelafila" var="fila" value="#{controlesBean.filaPrincipalCollection}"> 
+                                            <p:column headerText="Elevador" style="text-align: center;">  
+                                                <h:outputText value="#{fila.elevador.numero}" />  
+                                            </p:column> 
+                                            <p:column headerText="Usuário" style="text-align: center;">  
+                                                <img src="imagens/user.png" alt=""/> 
+                                            </p:column>
+                                            <p:column headerText="Origem" style="text-align: center;">  
+                                                <h:outputText value="#{fila.usuario.andarOrigem}º Andar" />  
+                                            </p:column> 
+                                            <p:column headerText="Destino" style="text-align: center;"> 
+                                                <h:outputText value="#{fila.usuario.andarDestino}º Andar" /><br />
+                                            </p:column> 
+                                            <p:column headerText="Custo" style="text-align: center;"> 
+                                                <h:outputText value="#{fila.custo.custo}" /><br />
+                                            </p:column> 
+                                        </p:dataTable>
+                                        <!--<p:poll interval="1" update="tabelafila" />-->
+                                    </h:form>                           
+                                </p:tab>
+                                <p:tab id="mindmap" title="MindMap" rendered="#{controlesBean.qtdAndares > 0}">
+                                    <h:form>
+                                        <p:mindmap value="#{controlesBean.elevadoresNode}" rendered="#{controlesBean.qtdElevadores > 0}" style="width: 100%;height: 500px;border: 1px solid black;">
+                                            <p:ajax event="select" listener="#{controlesBean.onNodeSelect}" />
+                                            <p:ajax event="dblselect" listener="#{controlesBean.onNodeDblselect}" update="output" oncomplete="PF('details').show();" />
+                                        </p:mindmap>
+
+                                        <p:spacer height="10px" width="10px"/>
+
+                                        <p:dialog widgetVar="details" header="Node Details" resizable="false" modal="true" showEffect="fade" hideEffect="fade">
+                                            <h:outputText id="output" value="#{controlesBean.selectedNode.data}" />
+                                        </p:dialog>
+                                    </h:form>
+                                </p:tab>
+                                <p:tab title="Configuração">
+                                    <h:form>
+                                        <h:panelGrid>
+                                            <p:outputLabel value="Elevadores Principais"/>
+                                            <h:panelGrid columns="2" cellpadding="5" styleClass="semBorda">
+                                                <h:outputLabel value="Quantidade" />
+                                                <p:inputText style="width: 150px;" required="true" requiredMessage="insira quandidade de elevadores" value="#{controlesBean.qtdElevadores}"/> 
+                                                <h:outputLabel value="Andares" />
+                                                <p:inputText style="width: 150px;" required="true" requiredMessage="insira quandidade de andares" value="#{controlesBean.qtdAndares}"/> 
+                                                <h:outputLabel value="Carga máxima " />
+                                                <p:inputText style="width: 150px;" required="true" requiredMessage="informe o peso máximo suportado" value="#{controlesBean.pesoMaximo}"/> 
+                                            </h:panelGrid>
+                                        </h:panelGrid>
+
+                                        <div align="left">
+                                            <h:panelGrid>
+                                                <p:commandButton ajax="false"  value="Confirmar" actionListener="#{controlesBean.preparaComponentes}" update=":panelGeral" />
+                                            </h:panelGrid>
+                                        </div>
+                                    </h:form>
+                                    <p:spacer height="6" width="6"/>
+                                </p:tab>
+                            </p:tabView>
+
+                            <h:form>
+                                <div style="height: 90px; width:200px; margin: auto; text-align: center;">
+                                    <h:panelGrid columns="1">
+                                        <h:outputLabel value="Ligado" rendered="#{controlesBean.ligarElevadores}" />
+                                        <h:outputLabel value="Desligado" rendered="#{!controlesBean.ligarElevadores}" />
+                                        <h:panelGrid columns="2">
+                                            <p:commandButton value="Ligar Elevadores" actionListener="#{controlesBean.ligarDesligarElevadores()}" update=":panelPrincipal" />
+                                            <p:commandButton value="Atualizar manualmente" actionListener="#{controlesBean.atualizaEstado()}" update=":panelPrincipal" />
+                                        </h:panelGrid>
+                                    </h:panelGrid>
+                                </div>
+                            </h:form>
+
+                        </h:panelGrid>
+                    </h:panelGrid>
+                </div>
+            </div>
+        </p:panel>
+    </ui:define>
+</ui:composition>
